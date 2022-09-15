@@ -4,12 +4,12 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom'
 import NavBar from './components/NavBar/NavBar'
 import Signup from './pages/Signup/Signup'
 import Login from './pages/Login/Login'
-import Landing from './pages/Landing/Landing'
 import Profiles from './pages/Profiles/Profiles'
 import ChangePassword from './pages/ChangePassword/ChangePassword'
 import * as authService from './services/authService'
 import AddPost from './pages/AddPost/AddPost'
 import * as postService from './services/postService'
+import PostList from './pages/PostList/PostList'
 
 const App = () => {
   const [user, setUser] = useState(authService.getUser())
@@ -40,6 +40,12 @@ const App = () => {
     setPosts([...posts, newPost])
     navigate('/')
   }
+  const handleDeletePost = async postId => {
+    const deletedPost = await postService.deletePost(postId)
+    const newPostArray = posts.filter(post => post._id !== deletedPost._id)
+    setPosts(newPostArray)
+    navigate('/')
+  }
 
   return (
     <>
@@ -50,7 +56,7 @@ const App = () => {
       <Route path="/new" element={<AddPost 
         handleAddPost= {handleAddPost}/>} />
         <Route />
-        <Route path="/" element={<Landing user={user} />} />
+        <Route path="/" element={<PostList handleDeletePost={handleDeletePost} user={user} posts={posts} />} />
         <Route
           path="/signup"
           element={<Signup handleSignupOrLogin={handleSignupOrLogin} />}
