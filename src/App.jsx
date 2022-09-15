@@ -1,5 +1,5 @@
 import './App.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom'
 import NavBar from './components/NavBar/NavBar'
 import Signup from './pages/Signup/Signup'
@@ -9,9 +9,11 @@ import Profiles from './pages/Profiles/Profiles'
 import ChangePassword from './pages/ChangePassword/ChangePassword'
 import * as authService from './services/authService'
 import AddPost from './pages/AddPost/AddPost'
+import * as postService from './services/postService'
 
 const App = () => {
   const [user, setUser] = useState(authService.getUser())
+  const [posts, setPosts] = useState([])
   const navigate = useNavigate()
 
   const handleLogout = () => {
@@ -20,8 +22,23 @@ const App = () => {
     navigate('/')
   }
 
+
+  useEffect(() => {
+    const fetchAllPosts = async () => {
+      const postData = await postService.getAll()
+      setPosts(postData)
+    }
+    fetchAllPosts()
+  }, [])
+
   const handleSignupOrLogin = () => {
     setUser(authService.getUser())
+  }
+
+  const handleAddPost = async postData => {
+    const newPost = await postService.create(postData)
+    setPosts([...posts, newPost])
+    navigate('/')
   }
 
   return (
@@ -30,7 +47,8 @@ const App = () => {
       <NavBar user={user} handleLogout={handleLogout} />
     <main>
       <Routes>
-      <Route path="/new" element={<AddPost />} />
+      <Route path="/new" element={<AddPost 
+        handleAddPost= {handleAddPost}/>} />
         <Route />
         <Route path="/" element={<Landing user={user} />} />
         <Route
